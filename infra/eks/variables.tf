@@ -24,3 +24,9 @@ We intentionally stay in standard support for demo environments.
 EOT
 }
 
+variable "region" {
+  type        = string
+  default     = null
+  description = "Terraform Cloud injected region (mapped internally)"
+}
+

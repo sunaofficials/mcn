@@ -1,4 +1,4 @@
 provider "aws" {
-  region = var.aws_region
+  region = coalesce(var.aws_region, var.region)
 }
 
