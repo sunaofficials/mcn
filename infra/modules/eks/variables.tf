@@ -1,17 +1,19 @@
 variable "cluster_name" {
-  type = string
+  type        = string
+  description = "EKS cluster name"
 }
 
 variable "k8s_version" {
-  type = string
+  type        = string
+  description = "Kubernetes version"
 }
 
 variable "vpc_id" {
-  type = string
+  type        = string
 }
 
 variable "subnet_ids" {
-  type = list(string)
+  type        = list(string)
 }
 
 variable "node_groups" {
