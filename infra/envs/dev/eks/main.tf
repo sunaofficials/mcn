@@ -1,13 +1,18 @@
-#santanu
 module "eks" {
   source = "../../../modules/eks"
 
-  name = var.cluster_name
-  kubernetes_version  = var.k8s_version
+  cluster_name = "mcn-eks-dev"
+  k8s_version  = "1.29"
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
 
-  node_groups = var.node_groups
+  node_groups = {
+    default = {
+      desired_size   = 1
+      min_size       = 1
+      max_size       = 2
+      instance_types = ["t3.micro"]
+    }
+  }
 }
-
