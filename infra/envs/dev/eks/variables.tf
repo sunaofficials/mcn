@@ -9,3 +9,7 @@ variable "k8s_version" {
 variable "node_groups" {
   type = any
 }
+
+variable "region" {
+  type = string
+}
