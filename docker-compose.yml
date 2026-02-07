@@ -1,0 +1,38 @@
+version: "3.9"
+
+services:
+  inventory:
+    image: inventory:latest
+    container_name: inventory
+    ports:
+      - "8082:8082"
+    networks:
+      - mcn-net
+    restart: unless-stopped
+
+  orders:
+    image: orders:latest
+    container_name: orders
+    depends_on:
+      - inventory
+    ports:
+      - "8081:8081"
+    networks:
+      - mcn-net
+    restart: unless-stopped
+
+  frontend:
+    image: frontend:latest
+    container_name: frontend
+    depends_on:
+      - orders
+    ports:
+      - "8080:80"
+    networks:
+      - mcn-net
+    restart: unless-stopped
+
+networks:
+  mcn-net:
+    driver: bridge
+

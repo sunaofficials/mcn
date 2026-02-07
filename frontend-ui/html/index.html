@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Santanu MI</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f8;
+      padding: 40px;
+    }
+    .card {
+      background: white;
+      padding: 20px;
+      width: 420px;
+      border-radius: 8px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.15);
+    }
+    button {
+      padding: 10px 15px;
+      background: #0078d4;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    pre {
+      background: #f0f0f0;
+      padding: 10px;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+  <h2>Frontend UI</h2>
+  <p>Docker → Kubernetes → Multi-Cloud</p>
+  <button onclick="loadData()">Load Orders</button>
+  <pre id="output"></pre>
+</div>
+
+<script>
+function loadData() {
+  fetch("/api/orders")
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("output").innerText =
+        JSON.stringify(data, null, 2);
+    })
+    .catch(err => {
+      document.getElementById("output").innerText =
+        "Error: " + err;
+    });
+}
+</script>
+
+</body>
+</html>
