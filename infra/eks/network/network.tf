@@ -73,6 +73,30 @@ resource "aws_subnet" "hub_public" {
   }
 }
 
+############################################
+# Hub PUBLIC Route Table (MISSING PIECE)
+############################################
+resource "aws_route_table" "hub_public" {
+  vpc_id = aws_vpc.hub.id
+
+  tags = {
+    Name = "hub-public-rt"
+  }
+}
+
+resource "aws_route" "hub_public_to_igw" {
+  route_table_id         = aws_route_table.hub_public.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.hub.id
+}
+
+resource "aws_route_table_association" "hub_public" {
+  count          = 2
+  subnet_id      = aws_subnet.hub_public[count.index].id
+  route_table_id = aws_route_table.hub_public.id
+}
+
+
 # Hub private subnets (TGW attachment)
 resource "aws_subnet" "hub_private" {
   count             = 2
@@ -104,7 +128,7 @@ resource "aws_nat_gateway" "hub" {
 }
 
 ############################################
-# Hub Route Tables
+# Hub Private Route Tables
 ############################################
 resource "aws_route_table" "hub_private" {
   vpc_id = aws_vpc.hub.id
