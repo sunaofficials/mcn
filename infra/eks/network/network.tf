@@ -30,7 +30,7 @@ resource "aws_vpc" "hub" {
 resource "aws_subnet" "hub_public" {
   count                   = 2
   vpc_id                  = aws_vpc.hub.id
-  cidr_block              = cidrsubnet(var.hub_vpc_cidr, 8, count.index)
+  cidr_block              = cidrsubnet(var.hub_vpc_cidr, 4, count.index)
   availability_zone       = data.aws_availability_zones.available.names[count.index]
   map_public_ip_on_launch = true
 
@@ -39,16 +39,18 @@ resource "aws_subnet" "hub_public" {
   }
 }
 
+
 resource "aws_subnet" "hub_private" {
   count             = 2
   vpc_id            = aws_vpc.hub.id
-  cidr_block        = cidrsubnet(var.hub_vpc_cidr, 8, count.index + 10)
+  cidr_block        = cidrsubnet(var.hub_vpc_cidr, 4, count.index + 2)
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
     Name = "hub-private-${count.index}"
   }
 }
+
 
 ########################################
 # HUB IGW + NAT
@@ -84,13 +86,14 @@ resource "aws_vpc" "spoke" {
 resource "aws_subnet" "eks_private" {
   count             = 2
   vpc_id            = aws_vpc.spoke.id
-  cidr_block        = cidrsubnet(var.spoke_vpc_cidr, 8, count.index + 10)
+  cidr_block        = cidrsubnet(var.spoke_vpc_cidr, 4, count.index + 2)
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
   tags = {
     Name = "eks-private-${count.index}"
   }
 }
+
 
 ########################################
 # TRANSIT GATEWAY
