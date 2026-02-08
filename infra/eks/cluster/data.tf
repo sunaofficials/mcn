@@ -1,20 +1,10 @@
-data "aws_vpc" "hub" {
-  filter {
-    name   = "tag:Name"
-    values = ["mcn-hub-vpc"]
+data "terraform_remote_state" "network" {
+  backend = "remote"
+
+  config = {
+    organization = "mcnssna"          # your org
+    workspaces = {
+      name = "mcn-eks-network"       # EXACT network workspace name
+    }
   }
 }
-
-data "aws_subnets" "private" {
-  filter {
-    name   = "tag:Tier"
-    values = ["private"]
-  }
-
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.hub.id]
-  }
-}
-
-data "aws_availability_zones" "available" {}
