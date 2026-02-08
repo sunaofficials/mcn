@@ -16,3 +16,5 @@ data "aws_subnets" "private" {
     values = [data.aws_vpc.hub.id]
   }
 }
+
+data "aws_availability_zones" "available" {}

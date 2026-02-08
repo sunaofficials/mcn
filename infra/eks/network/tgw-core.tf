@@ -1,10 +1,10 @@
 resource "aws_ec2_transit_gateway" "main" {
-  description = "Cisco-style Transit Gateway"
+  description = "MCN core TGW"
 
-  default_route_table_association = false
-  default_route_table_propagation = false
+  default_route_table_association = "disable"
+  default_route_table_propagation = "disable"
 
   tags = {
-    Name = "mcn-tgw"
+    Name = "mcn-core-tgw"
   }
 }

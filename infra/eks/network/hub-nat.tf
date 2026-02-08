@@ -1,7 +1,7 @@
 resource "aws_subnet" "hub_public" {
   vpc_id                  = aws_vpc.hub.id
   cidr_block              = "10.100.1.0/24"
-  availability_zone       = "${var.aws_region}a"
+  availability_zone = data.aws_availability_zones.available.names[count.index]
   map_public_ip_on_launch = true
 
   tags = {
