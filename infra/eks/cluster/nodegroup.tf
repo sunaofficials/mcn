@@ -6,7 +6,7 @@ resource "aws_eks_node_group" "main" {
   subnet_ids = data.terraform_remote_state.network.outputs.eks_private_subnet_ids
 
 
-  instance_types = ["t3.micro"]
+  instance_types = ["t3.medium"]
 
   scaling_config {
     desired_size = 1
