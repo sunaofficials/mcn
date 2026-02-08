@@ -18,3 +18,9 @@ resource "aws_subnet" "hub_public" {
     Name = "hub-public"
   }
 }
+resource "aws_subnet" "hub_private" {
+  count             = 2
+  vpc_id            = aws_vpc.hub.id
+  cidr_block        = cidrsubnet(var.hub_vpc_cidr, 4, count.index)
+  availability_zone = data.aws_availability_zones.available.names[count.index]
+}
