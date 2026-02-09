@@ -10,10 +10,10 @@ terraform {
 }
 
 provider "aws" {
-  region = "ap-south-1"
+  region = "ap-south-2"
 }
 
-############################
+#############################
 # IAM Role for EKS Cluster
 ############################
 resource "aws_iam_role" "cisco_eks_cluster_role" {
