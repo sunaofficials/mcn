@@ -1,6 +1,6 @@
 ############################################
-# Provider
-##############################################
+# Terraform & Provider
+############################################
 terraform {
   required_version = ">= 1.4.0"
 
@@ -21,17 +21,17 @@ provider "aws" {
 ############################################
 variable "aws_region" {
   type        = string
-  description = "AWS region (set globally in Terraform Cloud)"
+  description = "AWS region (set in Terraform Cloud)"
 }
 
 variable "hub_vpc_cidr" {
-  type        = string
-  default     = "10.0.0.0/16"
+  type    = string
+  default = "10.0.0.0/16"
 }
 
 variable "spoke_vpc_cidr" {
-  type        = string
-  default     = "10.1.0.0/16"
+  type    = string
+  default = "10.1.0.0/16"
 }
 
 ############################################
@@ -47,20 +47,17 @@ resource "aws_vpc" "hub" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = {
-    Name = "hub-vpc"
-  }
+  tags = { Name = "hub-vpc" }
 }
 
 resource "aws_internet_gateway" "hub" {
   vpc_id = aws_vpc.hub.id
-
-  tags = {
-    Name = "hub-igw"
-  }
+  tags   = { Name = "hub-igw" }
 }
 
-# Hub public subnets (for NAT)
+############################################
+# Hub Public Subnets (NAT lives here)
+############################################
 resource "aws_subnet" "hub_public" {
   count                   = 2
   vpc_id                  = aws_vpc.hub.id
@@ -68,23 +65,18 @@ resource "aws_subnet" "hub_public" {
   availability_zone       = data.aws_availability_zones.available.names[count.index]
   map_public_ip_on_launch = true
 
-  tags = {
-    Name = "hub-public-${count.index}"
-  }
+  tags = { Name = "hub-public-${count.index}" }
 }
 
 ############################################
-# Hub PUBLIC Route Table (MISSING PIECE)
+# Hub Public Route Table → IGW
 ############################################
 resource "aws_route_table" "hub_public" {
   vpc_id = aws_vpc.hub.id
-
-  tags = {
-    Name = "hub-public-rt"
-  }
+  tags   = { Name = "hub-public-rt" }
 }
 
-resource "aws_route" "hub_public_to_igw" {
+resource "aws_route" "hub_public_igw" {
   route_table_id         = aws_route_table.hub_public.id
   destination_cidr_block = "0.0.0.0/0"
   gateway_id             = aws_internet_gateway.hub.id
@@ -96,17 +88,16 @@ resource "aws_route_table_association" "hub_public" {
   route_table_id = aws_route_table.hub_public.id
 }
 
-
-# Hub private subnets (TGW attachment)
+############################################
+# Hub Private Subnets (TGW + NAT egress)
+############################################
 resource "aws_subnet" "hub_private" {
   count             = 2
   vpc_id            = aws_vpc.hub.id
   cidr_block        = cidrsubnet(var.hub_vpc_cidr, 8, count.index + 10)
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
-  tags = {
-    Name = "hub-private-${count.index}"
-  }
+  tags = { Name = "hub-private-${count.index}" }
 }
 
 ############################################
@@ -119,26 +110,20 @@ resource "aws_eip" "nat" {
 resource "aws_nat_gateway" "hub" {
   allocation_id = aws_eip.nat.id
   subnet_id     = aws_subnet.hub_public[0].id
+  depends_on    = [aws_internet_gateway.hub]
 
-  depends_on = [aws_internet_gateway.hub]
-
-  tags = {
-    Name = "hub-nat"
-  }
+  tags = { Name = "hub-nat" }
 }
 
 ############################################
-# Hub Private Route Tables
+# Hub Private Route Table → NAT
 ############################################
 resource "aws_route_table" "hub_private" {
   vpc_id = aws_vpc.hub.id
-
-  tags = {
-    Name = "hub-private-rt"
-  }
+  tags   = { Name = "hub-private-rt" }
 }
 
-resource "aws_route" "hub_private_to_nat" {
+resource "aws_route" "hub_private_nat" {
   route_table_id         = aws_route_table.hub_private.id
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.hub.id
@@ -158,9 +143,7 @@ resource "aws_vpc" "spoke" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = {
-    Name = "eks-spoke-vpc"
-  }
+  tags = { Name = "eks-spoke-vpc" }
 }
 
 resource "aws_subnet" "spoke_private" {
@@ -169,22 +152,18 @@ resource "aws_subnet" "spoke_private" {
   cidr_block        = cidrsubnet(var.spoke_vpc_cidr, 8, count.index)
   availability_zone = data.aws_availability_zones.available.names[count.index]
 
-  tags = {
-    Name = "eks-private-${count.index}"
-  }
+  tags = { Name = "eks-private-${count.index}" }
 }
 
 ############################################
 # Transit Gateway
 ############################################
 resource "aws_ec2_transit_gateway" "main" {
-  description                     = "core-tgw"
-  default_route_table_association  = "disable"
-  default_route_table_propagation  = "disable"
+  description                    = "core-tgw"
+  default_route_table_association = "disable"
+  default_route_table_propagation = "disable"
 
-  tags = {
-    Name = "core-tgw"
-  }
+  tags = { Name = "core-tgw" }
 }
 
 ############################################
@@ -195,9 +174,7 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "hub" {
   vpc_id             = aws_vpc.hub.id
   subnet_ids         = aws_subnet.hub_private[*].id
 
-  tags = {
-    Name = "hub-attachment"
-  }
+  tags = { Name = "hub-attachment" }
 }
 
 resource "aws_ec2_transit_gateway_vpc_attachment" "spoke" {
@@ -205,28 +182,22 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "spoke" {
   vpc_id             = aws_vpc.spoke.id
   subnet_ids         = aws_subnet.spoke_private[*].id
 
-  tags = {
-    Name = "eks-spoke-attachment"
-  }
+  tags = { Name = "eks-spoke-attachment" }
 }
 
 ############################################
-# Spoke Routing → TGW
+# Spoke Route Table → TGW (ONLY)
 ############################################
 resource "aws_route_table" "spoke_private" {
   vpc_id = aws_vpc.spoke.id
 
-  tags = {
-    Name = "eks-private-rt"
+  route {
+    cidr_block         = "0.0.0.0/0"
+    transit_gateway_id = aws_ec2_transit_gateway.main.id
   }
-}
 
-resource "aws_route" "spoke_to_nat" {
-  route_table_id         = aws_route_table.spoke_private.id
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.hub.id
+  tags = { Name = "eks-private-rt" }
 }
-
 
 resource "aws_route_table_association" "spoke_private" {
   count          = 2
@@ -235,7 +206,7 @@ resource "aws_route_table_association" "spoke_private" {
 }
 
 ############################################
-# Outputs (for EKS workspace)
+# Outputs (used by EKS workspace)
 ############################################
 output "spoke_vpc_id" {
   value = aws_vpc.spoke.id
