@@ -221,11 +221,12 @@ resource "aws_route_table" "spoke_private" {
   }
 }
 
-resource "aws_route" "spoke_to_tgw" {
+resource "aws_route" "spoke_to_nat" {
   route_table_id         = aws_route_table.spoke_private.id
   destination_cidr_block = "0.0.0.0/0"
-  transit_gateway_id     = aws_ec2_transit_gateway.main.id
+  nat_gateway_id         = aws_nat_gateway.hub.id
 }
+
 
 resource "aws_route_table_association" "spoke_private" {
   count          = 2
