@@ -130,14 +130,23 @@ resource "aws_nat_gateway" "hub" {
 }
 
 ############################################
-# HUB PRIVATE ROUTE TABLE → NAT
+# HUB PRIVATE ROUTE TABLE
+# - Internet via NAT
+# - Return traffic to Spoke via TGW (CRITICAL)
 ############################################
 resource "aws_route_table" "hub_private" {
   vpc_id = aws_vpc.hub.id
 
+  # Internet egress
   route {
     cidr_block     = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.hub.id
+  }
+
+  # RETURN PATH to Spoke (THIS FIXES EKS)
+  route {
+    cidr_block         = var.spoke_vpc_cidr
+    transit_gateway_id = aws_ec2_transit_gateway.main.id
   }
 
   tags = {
@@ -150,6 +159,7 @@ resource "aws_route_table_association" "hub_private" {
   subnet_id      = aws_subnet.hub_private[count.index].id
   route_table_id = aws_route_table.hub_private.id
 }
+
 
 ############################################
 # SPOKE (EKS) VPC
