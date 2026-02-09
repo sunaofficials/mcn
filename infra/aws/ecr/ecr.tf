@@ -14,7 +14,7 @@ provider "aws" {
 }
 
 ############################
-# ECR Repositories
+# ECR Repositoriess
 ############################
 resource "aws_ecr_repository" "cisco_frontend" {
   name = "cisco-frontend"
