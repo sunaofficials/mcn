@@ -231,12 +231,6 @@ resource "aws_route_table" "spoke_private" {
   tags = { Name = "eks-private-rt" }
 }
 
-resource "aws_route_table_association" "spoke_private" {
-  count          = 2
-  subnet_id      = aws_subnet.spoke_private[count.index].id
-  route_table_id = aws_route_table.spoke_private.id
-}
-
 ############################################
 # OUTPUTS (FOR EKS WORKSPACE)
 ############################################
