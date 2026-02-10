@@ -105,13 +105,13 @@ resource "aws_eks_node_group" "cisco_nodegroup" {
     data.aws_subnet.cisco_private_2.id
   ]
 
-  instance_types = ["t3.medium"]
+  instance_types = ["t3.small"]
   disk_size      = 40
 
   scaling_config {
-    desired_size = 1
+    desired_size = 3
     min_size     = 1
-    max_size     = 2
+    max_size     = 4
   }
 
   depends_on = [
