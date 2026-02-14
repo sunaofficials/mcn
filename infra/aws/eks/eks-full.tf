@@ -124,7 +124,6 @@ resource "aws_eks_node_group" "cisco_nodegroup_app" {
     min_size     = 1
     max_size     = 3
   }
-}
 
   depends_on = [
     aws_iam_role_policy_attachment.worker_node_policy,
@@ -158,7 +157,6 @@ resource "aws_eks_node_group" "cisco_nodegroup_infra" {
     min_size     = 1
     max_size     = 2
   }
-}
 
   depends_on = [
     aws_iam_role_policy_attachment.worker_node_policy,
@@ -183,6 +181,7 @@ data "aws_subnet" "cisco_private_2" {
     values = ["cisco-private-2"]
   }
 }
+
 
 
 
