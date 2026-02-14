@@ -103,23 +103,62 @@ resource "aws_eks_cluster" "cisco_cluster" {
 ############################
 # Managed Node Group
 ############################
-resource "aws_eks_node_group" "cisco_nodegroup" {
+resource "aws_eks_node_group" "cisco_nodegroup_app" {
   cluster_name    = aws_eks_cluster.cisco_cluster.name
-  node_group_name = "cisco-nodegroup"
-  node_role_arn  = aws_iam_role.cisco_eks_node_role.arn
-  subnet_ids     = [
+  node_group_name = "cisco-nodegroup-app"
+  node_role_arn   = aws_iam_role.cisco_eks_node_role.arn
+
+  subnet_ids = [
+    data.aws_subnet.cisco_private_1.id,
+    data.aws_subnet.cisco_private_2.id
+  ]
+
+  instance_types = ["t3.medium"]
+
+  labels = {
+    node-role = "app"
+  }
+
+  scaling_config {
+    desired_size = 2
+    min_size     = 1
+    max_size     = 3
+  }
+}
+
+  depends_on = [
+    aws_iam_role_policy_attachment.worker_node_policy,
+    aws_iam_role_policy_attachment.cni_policy,
+    aws_iam_role_policy_attachment.ecr_policy
+  ]
+}
+
+############################
+# Managed Node Group
+############################
+
+resource "aws_eks_node_group" "cisco_nodegroup_infra" {
+  cluster_name    = aws_eks_cluster.cisco_cluster.name
+  node_group_name = "cisco-nodegroup-infra"
+  node_role_arn   = aws_iam_role.cisco_eks_node_role.arn
+
+  subnet_ids = [
     data.aws_subnet.cisco_private_1.id,
     data.aws_subnet.cisco_private_2.id
   ]
 
   instance_types = ["t3.small"]
-  disk_size      = 20
+
+  labels = {
+    node-role = "infra"
+  }
 
   scaling_config {
-    desired_size = 0
-    min_size     = 0
-    max_size     = 1
+    desired_size = 1
+    min_size     = 1
+    max_size     = 2
   }
+}
 
   depends_on = [
     aws_iam_role_policy_attachment.worker_node_policy,
@@ -144,6 +183,7 @@ data "aws_subnet" "cisco_private_2" {
     values = ["cisco-private-2"]
   }
 }
+
 
 
 
