@@ -122,7 +122,7 @@ resource "aws_eks_node_group" "cisco_nodegroup_app" {
   scaling_config {
     desired_size = 0
     min_size     = 1
-    max_size     = 0
+    max_size     = 2
   }
 
   depends_on = [
@@ -155,7 +155,7 @@ resource "aws_eks_node_group" "cisco_nodegroup_infra" {
   scaling_config {
     desired_size = 0
     min_size     = 1
-    max_size     = 0
+    max_size     = 2
   }
 
   depends_on = [
@@ -181,6 +181,7 @@ data "aws_subnet" "cisco_private_2" {
     values = ["cisco-private-2"]
   }
 }
+
 
 
 
