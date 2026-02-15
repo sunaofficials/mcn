@@ -148,8 +148,8 @@ resource "aws_eks_node_group" "cisco_nodegroup_infra" {
     data.aws_subnet.cisco_private_2.id
   ]
 
-  instance_types = ["t3.small"]
-  disk_size    = 40
+  instance_types = ["t3.medium"]
+  disk_size    = 60
 
   labels = {
     node-role = "infra"
@@ -184,6 +184,7 @@ data "aws_subnet" "cisco_private_2" {
     values = ["cisco-private-2"]
   }
 }
+
 
 
 
