@@ -114,6 +114,7 @@ resource "aws_eks_node_group" "cisco_nodegroup_app" {
   ]
 
   instance_types = ["t3.medium"]
+  disk_size    = 40
 
   labels = {
     node-role = "app"
@@ -123,7 +124,7 @@ resource "aws_eks_node_group" "cisco_nodegroup_app" {
     desired_size = 1
     min_size     = 1
     max_size     = 2
-    disk_size    = 40
+    
   }
 
   depends_on = [
@@ -148,6 +149,7 @@ resource "aws_eks_node_group" "cisco_nodegroup_infra" {
   ]
 
   instance_types = ["t3.small"]
+  disk_size    = 40
 
   labels = {
     node-role = "infra"
@@ -182,6 +184,7 @@ data "aws_subnet" "cisco_private_2" {
     values = ["cisco-private-2"]
   }
 }
+
 
 
 
