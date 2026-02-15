@@ -169,6 +169,39 @@ resource "aws_eks_node_group" "cisco_nodegroup_infra" {
 }
 
 ############################
+# Managed Node Group
+############################
+resource "aws_eks_node_group" "cisco_nodegroup_db" {
+  cluster_name    = aws_eks_cluster.cisco_cluster.name
+  node_group_name = "cisco-nodegroup-db"
+  node_role_arn   = aws_iam_role.cisco_eks_node_role.arn
+
+  subnet_ids = [
+    data.aws_subnet.cisco_private_1.id,
+    data.aws_subnet.cisco_private_2.id
+  ]
+
+  instance_types = ["t3.small"]
+  disk_size    = 30
+
+  labels = {
+    node-role = "db"
+  }
+
+  scaling_config {
+    desired_size = 1
+    min_size     = 1
+    max_size     = 2
+    
+  }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.worker_node_policy,
+    aws_iam_role_policy_attachment.cni_policy,
+    aws_iam_role_policy_attachment.ecr_policy
+  ]
+}
+############################
 # Data Sources (Network)
 ############################
 data "aws_subnet" "cisco_private_1" {
@@ -184,6 +217,7 @@ data "aws_subnet" "cisco_private_2" {
     values = ["cisco-private-2"]
   }
 }
+
 
 
 
