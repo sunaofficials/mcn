@@ -123,6 +123,7 @@ resource "aws_eks_node_group" "cisco_nodegroup_app" {
     desired_size = 1
     min_size     = 1
     max_size     = 2
+    disk_size    = 40
   }
 
   depends_on = [
@@ -181,6 +182,7 @@ data "aws_subnet" "cisco_private_2" {
     values = ["cisco-private-2"]
   }
 }
+
 
 
 
